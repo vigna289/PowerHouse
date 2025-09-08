@@ -1,31 +1,33 @@
 import React from 'react'
-
-const ProductCard = () => {
+import "./ProductCard.css"
+import { useNavigate } from 'react-router-dom';
+const ProductCard = ({ product }) => {
+  const navigate=useNavigate();
   return (
-    <div className='productCard w-[15rem] m-3 transition-all cursor-pointer'>
-      <div className='h-[20rem]'>
-        <img className="h-full w-full object-cover object-left-top" src="http://1.bp.blogspot.com/-2r66SaQmUSw/UglJh8wesyI/AAAAAAAAAHs/zLqTWPEi-iM/s1600/Dress+1.jpg" alt="">
+    <div onClick={()=>navigate(`/product/${5}`)} className='productCard w-[15rem] m-3 transition-all cursor-pointer relative'>
+      <div className='h-[23rem]'>
+        <img className="h-[15rem] w-full object-cover object-left-top" src={product.images && product.images.length > 0 ? product.images[2] : '/placeholder.png'} alt="">
         </img>
-        <div className='textPart bg-white p-3'>
-            <div>
-                <p className='font-bold opacity-60'>
-                    Zara
-                </p>
-                <p>
-                    Casual Women Frock
-                </p>
-            </div>
-            <div className='font-semibold opacity-50'>
+        <div className='textPart bg-white p-3 bottom-0 left-0 right-0'>
+          <div>
+            <p className='font-bold opacity-60'>
+              {product.brand}
+            </p>
+            <p>
+              {product.title}
+            </p>
+          </div>
+          <div className='flec items-center space-x-2'>
             <p className='font-semibold'>
-                Rs 2000
+              $ {product.price}
             </p>
             <p className='line-through opacity-50'>
-                Rs 3500
+              {product.discountPercentage}%
             </p>
             <p className='text-green-600 font-semibold'>
-                40% off
+              Goodwill : {product.rating}
             </p>
-            </div>
+          </div>
         </div>
       </div>
     </div>

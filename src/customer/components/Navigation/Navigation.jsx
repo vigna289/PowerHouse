@@ -16,6 +16,7 @@ import {
   TabPanels,
 } from '@headlessui/react'
 import { Bars3Icon, MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { useNavigate } from 'react-router-dom'
 
 const navigation = {
   categories: [
@@ -143,6 +144,13 @@ const navigation = {
 
 export default function Navigation() {
   const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
+
+  const handleCategoryClick = (category, section, item) => {
+    // use item.name instead of item.id
+    navigate(`/${category.id}/${section.id}/${item.name.toLowerCase()}`)
+    setOpen(false) // closes mobile menu after navigation
+  }
 
   return (
     <div className="bg-white z-50">
@@ -216,9 +224,12 @@ export default function Navigation() {
                         >
                           {section.items.map((item) => (
                             <li key={item.name} className="flow-root">
-                              <a href={item.href} className="-m-2 block p-2 text-gray-500">
+                              <p
+                                onClick={() => handleCategoryClick(category, section, item)}
+                                className="cursor-pointer text-gray-500 hover:text-gray-800"
+                              >
                                 {item.name}
-                              </a>
+                              </p>
                             </li>
                           ))}
                         </ul>
@@ -267,6 +278,7 @@ export default function Navigation() {
         </div>
       </Dialog>
 
+      {/* Desktop Navigation */}
       <header className="relative bg-white">
         <p className="flex h-10 items-center justify-center bg-indigo-600 px-4 text-sm font-medium text-white sm:px-6 lg:px-8">
           Get free delivery on orders over $100
@@ -315,7 +327,6 @@ export default function Navigation() {
                         transition
                         className="absolute inset-x-0 top-full z-20 w-full bg-white text-sm text-gray-500 transition data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
                       >
-                        {/* Presentational element used to render the bottom shadow, if we put the shadow on the actual panel it pokes out the top, so we use this shorter element to hide the top of the shadow */}
                         <div aria-hidden="true" className="absolute inset-0 top-1/2 bg-white shadow-sm" />
                         <div className="relative bg-white">
                           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -351,9 +362,12 @@ export default function Navigation() {
                                     >
                                       {section.items.map((item) => (
                                         <li key={item.name} className="flex">
-                                          <a href={item.href} className="hover:text-gray-800">
+                                          <p
+                                            onClick={() => handleCategoryClick(category, section, item)}
+                                            className="cursor-pointer hover:text-gray-800"
+                                          >
                                             {item.name}
-                                          </a>
+                                          </p>
                                         </li>
                                       ))}
                                     </ul>
@@ -412,7 +426,7 @@ export default function Navigation() {
                 {/* Cart */}
                 <div className="ml-4 flow-root lg:ml-6">
                   <a href="#" className="group -m-2 flex items-center p-2">
-                    <ShoppingBagIcon
+                    <ShoppingBagIcon onClick={()=>navigate("/account/order")}
                       aria-hidden="true"
                       className="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
                     />
