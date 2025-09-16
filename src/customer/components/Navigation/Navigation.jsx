@@ -16,7 +16,12 @@ import {
   TabPanels,
 } from '@headlessui/react'
 import { Bars3Icon, MagnifyingGlassIcon, ShoppingBagIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import AuthModel from '../../Auth/AuthModel'
+import { useDispatch } from 'react-redux'
+import { getUser } from '../../../State/Auth/Action'
+import { useSelector } from 'react-redux'
+import { useEffect } from 'react'
 
 const navigation = {
   categories: [
@@ -146,11 +151,48 @@ export default function Navigation() {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
 
+  const [openAuthModal, setOpenAuthModal] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openUserMenu = Boolean(anchorEl);
+  const jwt = localStorage.getItem("jwt");
+  const { auth } = useSelector(store => store)
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const handleUserClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleCloseUserMenu = (event) => {
+    setAnchorEl(null);
+  };
+
+  const handleOpen = () => {
+    setOpenAuthModal(true);
+  };
+  const handleClose = () => {
+    setOpenAuthModal(false);
+  };
   const handleCategoryClick = (category, section, item) => {
     // use item.name instead of item.id
     navigate(`/${category.id}/${section.id}/${item.name.toLowerCase()}`)
     setOpen(false) // closes mobile menu after navigation
-  }
+  };
+
+  useEffect(() => {
+    if (jwt) {
+      dispatch(getUser(jwt))
+    }
+  }, [jwt, dispatch])
+
+
+  useEffect(() => {
+    if (auth.user) {
+      handleClose()
+    }
+    if (location.pathname === "/login" || location.pathname === "/register") {
+      navigate(-1)
+    }
+  }, [auth.user])
+
 
   return (
     <div className="bg-white z-50">
@@ -392,16 +434,58 @@ export default function Navigation() {
                 </div>
               </PopoverGroup>
 
-              <div className="ml-auto flex items-center">
-                <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
-                    Sign in
-                  </a>
-                  <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
-                  <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
-                    Create account
-                  </a>
-                </div>
+              {/* Right side */}
+              <div className="ml-auto flex items-center space-x-6">
+                {auth.user ? (
+                  <div className="relative">
+                    {/* Avatar */}
+                    <button
+                      onClick={handleUserClick}
+                      className="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-600 text-white font-bold"
+                    >
+                      {auth.user.firstName ? auth.user.firstName[0].toUpperCase() : "U"}
+                    </button>
+
+                    {/* Dropdown */}
+                    {openUserMenu && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                        <p
+                          onClick={() => { navigate("/account/profile"); setAnchorEl(null); }}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                        >
+                          Profile
+                        </p>
+                        <p
+                          onClick={() => { navigate("/account/orders"); setAnchorEl(null); }}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                        >
+                          Orders
+                        </p>
+                        <p
+                          onClick={() => {
+                            localStorage.removeItem("jwt");
+                            window.location.reload();
+                          }}
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                        >
+                          Logout
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <button onClick={handleOpen} className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                      Sign in
+                    </button>
+                    <span aria-hidden="true" className="h-6 w-px bg-gray-200" />
+                    <a href="#" className="text-sm font-medium text-gray-700 hover:text-gray-800">
+                      Create account
+                    </a>
+                  </>
+                )}
+
+
 
                 <div className="hidden lg:ml-8 lg:flex">
                   <a href="#" className="flex items-center text-gray-700 hover:text-gray-800">
@@ -426,7 +510,7 @@ export default function Navigation() {
                 {/* Cart */}
                 <div className="ml-4 flow-root lg:ml-6">
                   <a href="#" className="group -m-2 flex items-center p-2">
-                    <ShoppingBagIcon onClick={()=>navigate("/account/order")}
+                    <ShoppingBagIcon onClick={() => navigate("/account/order")}
                       aria-hidden="true"
                       className="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
                     />
@@ -439,6 +523,7 @@ export default function Navigation() {
           </div>
         </nav>
       </header>
+      <AuthModel handleClose={handleClose} open={openAuthModal} />
     </div>
   )
-}
+}  
