@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Pagination from '@mui/material/Pagination';
 import {
   Dialog,
   DialogBackdrop,
@@ -20,7 +21,7 @@ import { filters } from './FilterData'
 import { FormControl, FormControlLabel, Radio, RadioGroup, FormLabel } from '@mui/material'
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch,useSelector } from 'react-redux'
 import { findProducts } from '../../../State/Product/Action'
 
 const sortOptions = [
@@ -38,6 +39,11 @@ export default function Product() {
   const navigate = useNavigate();
   const param = useParams();
   const dispatch = useDispatch();
+  const {product} = useSelector(store=>store)
+
+    console.log("[Product.jsx] rendered with params:", param);
+
+
 
   const decodedQueryString = decodeURIComponent(location.search);
   const searchParams = new URLSearchParams(decodedQueryString);
@@ -49,7 +55,13 @@ export default function Product() {
   const pageNumber = searchParams.get("page") || 1;
   const stock = searchParams.get("stock");
 
+ const handlePaginationChange=(event,value)=>{
+  const searchParams = new URLSearchParams(location.search)
+  searchParams.set("page",value);
+  const query = searchParams.toString();
+  navigate({search:`?${query}`})
 
+ }
   const handleFilter = (value, sectionId) => {
     const searchParams = new URLSearchParams(location.search)
     let filterValue = searchParams.getAll(sectionId)
@@ -76,35 +88,73 @@ export default function Product() {
     const query = searchParams.toString();
     navigate({ search: `?${query}` })
   }
+  useEffect(() => {
+  const [minPrice, maxPrice] = priceValue === null ? [0, 0] : priceValue.split("-").map(Number);
 
-  useEffect(()=>{
-    const [minPrice, maxPrice]= priceValue === null?[0,0]:priceValue.split("-").map(Number);
-    const data = {
-      category : param.lavelThree,
-      colors: colorValue || [],
-      sizes :  sizeValue || [],
-      minPrice,
-      maxPrice,
-      minDiscount: discount || 0,
-      sort : sortValue || "price_low",
-      pageNumber : pageNumber-1,
-      pageSize : 10,
-      stock : stock
-    }
-    console.log("Payload sent:", data);
-    dispatch(findProducts(data))
+const data = {
+  category: param.levelThree,
+  color: colorValue && colorValue !== "undefined" ? colorValue : "",
+  sizes: sizeValue && sizeValue !== "undefined" ? sizeValue : "",
+  minPrice,
+  maxPrice,
+  minDiscount: discount || 0,
+  sort: sortValue || "price_low",
+  pageNumber: pageNumber - 1,
+  pageSize: 10,
+  stock: stock && stock !== "null" ? stock : "",
+}
 
 
+  if (colorValue) data.color = colorValue;   // ✅ only add if exists
+  if (sizeValue) data.sizes = sizeValue;     // ✅ only add if exists
+  if (stock !== null && stock !== "null") data.stock = stock; // ✅ skip null
 
-  },[param.lavelThree,
-    colorValue,
-    sizeValue,
-    priceValue,
-    discount,
-    sortValue,
-    pageNumber,
-    stock
-  ])
+  console.log("[Product.jsx] dispatching findProducts with:", data);
+  dispatch(findProducts(data));
+}, [
+  dispatch,
+  param.levelThree,
+  colorValue,
+  sizeValue,
+  priceValue,
+  discount,
+  sortValue,
+  pageNumber,
+  stock
+]);
+
+
+  // useEffect(()=>{
+  //   const [minPrice, maxPrice]= priceValue === null?[0,0]:priceValue.split("-").map(Number);
+  //   const data = {
+  //     category : param.levelThree,
+  //     color: colorValue || [],
+  //     sizes :  sizeValue || [],
+  //     minPrice,
+  //     maxPrice,
+  //     minDiscount: discount || 0,
+  //     sort : sortValue || "price_low",
+  //     pageNumber : pageNumber-1,
+  //     pageSize : 10,
+  //     stock : stock
+  //   }
+  //   console.log("[Product.jsx] dispatching findProducts with:", data);
+
+  //   dispatch(findProducts(data))
+
+
+
+  // },[
+  //   dispatch,
+  //   param.levelThree,
+  //   colorValue,
+  //   sizeValue,
+  //   priceValue,
+  //   discount,
+  //   sortValue,
+  //   pageNumber,
+  //   stock
+  // ])
 
   return (
     <div className="bg-white">
@@ -362,9 +412,17 @@ export default function Product() {
               {/* Product grid */}
               <div className="lg:col-span-4 w-full">
                 <div className='flex flex-wrap justify-center bg-white py-5'>
-                  {(mens_shirts[0].products).map((item) => <ProductCard product={item} />)}
+          {(product?.products?.content || []).map((item) => (
+  <ProductCard key={item._id} product={item} />
+))}
+
                 </div>
               </div>
+            </div>
+          </section>
+          <section className='w-full px=[3.6rem]'>
+            <div className="px-4 py-5 flex justify-center ">
+              <Pagination count={product.products?.totalPages} color="secondary" onChange={handlePaginationChange}/>
             </div>
           </section>
         </main>
