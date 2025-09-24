@@ -39,7 +39,7 @@ export default function Product() {
   const navigate = useNavigate();
   const param = useParams();
   const dispatch = useDispatch();
-  const {product} = useSelector(store=>store)
+  const {products} = useSelector(store=>store)
 
     console.log("[Product.jsx] rendered with params:", param);
 
@@ -99,7 +99,7 @@ const data = {
   maxPrice,
   minDiscount: discount || 0,
   sort: sortValue || "price_low",
-  pageNumber: pageNumber - 1,
+  pageNumber: pageNumber,
   pageSize: 10,
   stock: stock && stock !== "null" ? stock : "",
 }
@@ -412,7 +412,7 @@ const data = {
               {/* Product grid */}
               <div className="lg:col-span-4 w-full">
                 <div className='flex flex-wrap justify-center bg-white py-5'>
-          {(product?.products?.content || []).map((item) => (
+          {(products?.products?.content || []).map((item) => (
   <ProductCard key={item._id} product={item} />
 ))}
 
@@ -422,7 +422,7 @@ const data = {
           </section>
           <section className='w-full px=[3.6rem]'>
             <div className="px-4 py-5 flex justify-center ">
-              <Pagination count={product.products?.totalPages} color="secondary" onChange={handlePaginationChange}/>
+              <Pagination count={products.products?.totalPages} color="secondary" onChange={handlePaginationChange}/>
             </div>
           </section>
         </main>

@@ -1,8 +1,16 @@
 import React from 'react'
 import { TextField, Button, Box } from '@mui/material'
 import AddressCard from '../AddressCard/AddressCard'
-
+import { useDispatch, useSelector } from 'react-redux'
+import {createOrder} from "../../../State/Order/Action"
+import { useNavigate } from 'react-router-dom'
+import { store } from '../../../State/store'
 const DeliveryAddressForm = () => {
+  const dispatch = useDispatch();
+ const navigate = useNavigate();
+const {auth}=useSelector(store=>store);
+console.log("auth",auth.user)
+
   const handleSubmit=(e)=>{
     e.preventDefault();
     
@@ -16,13 +24,15 @@ const DeliveryAddressForm = () => {
       zipCode:data.get("zip"),
       mobile:data.get("phoneNumber")
     }
-    console.log("address",address)
+    const orderData={address,navigate}
+    dispatch(createOrder(orderData))
+    console.log("address",orderData)
   }
   return (
     <div className="flex gap-4">
       {/* Left side - AddressCard */}
       <div className="border rounded-e-md shadow-md h-[30.5rem] overflow-y-scroll p-5 py-7">
-        <AddressCard />
+       {auth.user?.address.map((item)=> <AddressCard address={item}/>)}
         <Button
           sx={{ mt: 2, bgcolor: "RGB(145 85 253)" }}
           size="large"

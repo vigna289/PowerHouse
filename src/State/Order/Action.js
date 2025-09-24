@@ -7,7 +7,8 @@ import {
     GET_ORDER_BY_ID_REQUEST,
     GET_ORDER_BY_ID_SUCCESS,
 } from "./ActionType";
-import api, {API_BASE_URL} from "../../../config/api";
+import { api } from "../../config/apiConfig"
+// import {API_BASE_URL} from "../../../config/api";
 
 export const createOrder = (reqData) => async(dispatch) => {
      dispatch({type : CREATE_ORDER_REQUEST});
@@ -16,9 +17,9 @@ export const createOrder = (reqData) => async(dispatch) => {
             `/api/orders/`,
             reqData.address,
         );
-        if(data.id)
+        if(data._id)
         {
-            reqData.navigate({search: `step=3&order_id=${data.id}`});
+            reqData.navigate({search: `step=3&order_id=${data._id}`});
         }
         console.log("created order - ",data);
         dispatch({
