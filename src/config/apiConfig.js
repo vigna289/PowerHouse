@@ -1,7 +1,5 @@
 import axios from "axios"
-// Replace localhost with Render URL
-const API_URL = "https://powerhouse-backend-3.onrender.com";
-
+export const API_BASE_URL = "https://powerhouse-backend-3.onrender.com"
 const jwt = localStorage.getItem("jwt")
 
 export const api=axios.create({
